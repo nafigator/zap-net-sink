@@ -19,7 +19,11 @@ func Example() {
 	if err != nil {
 		panic(err)
 	}
-	defer udpServer.Close()
+	defer func() {
+		if err := udpServer.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	// Pass all JSON messages that the UDP server receives to a map[string]interface{} channel.
 	udpDec := json.NewDecoder(udpServer)

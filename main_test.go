@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	_ "kontera-technologies/zap-net-sink"
+	_ "github.com/nafigator/zap-net-sink"
 )
 
 func TestUDPSink(t *testing.T) {
@@ -29,7 +29,7 @@ func TestUDPSink(t *testing.T) {
 	var actual map[string]interface{}
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level":"warn", "from": "warn", "ts": actual["ts"]})
+		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]})
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
@@ -37,7 +37,7 @@ func TestUDPSink(t *testing.T) {
 	logger.Infow("hello", "from", "info")
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level":"info", "from": "info", "ts": actual["ts"]})
+		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]})
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
@@ -51,8 +51,8 @@ func TestTCPSink(t *testing.T) {
 	go func() {
 		conn, err := server.Accept()
 		fatalIfErr(t, err)
-		serverWG.Done()
 		serverOutC = decToChan(t, json.NewDecoder(conn))
+		serverWG.Done()
 	}()
 
 	writer, cleanup, err := zap.Open("tcp://127.0.0.1:1234")
@@ -67,7 +67,7 @@ func TestTCPSink(t *testing.T) {
 	var actual map[string]interface{}
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level":"warn", "from": "warn", "ts": actual["ts"]})
+		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]})
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
@@ -75,7 +75,7 @@ func TestTCPSink(t *testing.T) {
 	logger.Infow("hello", "from", "info")
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level":"info", "from": "info", "ts": actual["ts"]})
+		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]})
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
