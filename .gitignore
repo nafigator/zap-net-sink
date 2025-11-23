@@ -1,2 +1,14 @@
 # OS & IDE
 .idea
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Go workspace file
+go.work
+
+.bash_history
+.config
+
+# Ignore sh helpers
+*.sh
