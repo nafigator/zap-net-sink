@@ -10,28 +10,32 @@ import (
 )
 
 func Example() {
+	var err error
+	var laddr *net.UDPAddr
+	var udpServer *net.UDPConn
+
 	// Setup UDP server
-	laddr, err := net.ResolveUDPAddr("udp", "0.0.0.0:1234")
+	laddr, err = net.ResolveUDPAddr("udp", "0.0.0.0:1234")
 	if err != nil {
 		panic(err)
 	}
-	udpServer, err := net.ListenUDP("udp", laddr)
+	udpServer, err = net.ListenUDP("udp", laddr)
 	if err != nil {
 		panic(err)
 	}
 	defer func() {
-		if err := udpServer.Close(); err != nil {
-			panic(err)
+		if defErr := udpServer.Close(); defErr != nil {
+			panic(defErr)
 		}
 	}()
 
 	// Pass all JSON messages that the UDP server receives to a map[string]interface{} channel.
 	udpDec := json.NewDecoder(udpServer)
-	udpC := make(chan map[string]interface{}, 1)
+	udpC := make(chan map[string]any, 1)
 	go func() {
 		for {
-			var v map[string]interface{}
-			if err := udpDec.Decode(&v); err != nil {
+			var v map[string]any
+			if defErr := udpDec.Decode(&v); defErr != nil {
 				return
 			}
 			udpC <- v
@@ -44,7 +48,11 @@ func Example() {
 	}
 	defer cleanup()
 
-	logger := zap.New(zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), writer, zap.DebugLevel)).Sugar()
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		writer,
+		zap.DebugLevel,
+	)).Sugar()
 	logger.Infow("hello", "from", "Example()")
 
 	msg := <-udpC

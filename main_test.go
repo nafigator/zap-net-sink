@@ -16,6 +16,8 @@ import (
 )
 
 func TestUDPSink(t *testing.T) {
+	t.Parallel()
+
 	server := setupUDP(t, 1234)
 	serverOutC := decToChan(t, json.NewDecoder(server))
 
@@ -23,13 +25,21 @@ func TestUDPSink(t *testing.T) {
 	fatalIfErr(t, err)
 	t.Cleanup(cleanup)
 
-	logger := zap.New(zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), writer, zap.DebugLevel)).Sugar()
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		writer,
+		zap.DebugLevel,
+	)).Sugar()
 
 	logger.Warnw("hello", "from", "warn")
-	var actual map[string]interface{}
+	var actual map[string]any
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]})
+		actualEqualsExpected(
+			t,
+			actual,
+			map[string]any{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]},
+		)
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
@@ -37,15 +47,21 @@ func TestUDPSink(t *testing.T) {
 	logger.Infow("hello", "from", "info")
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]})
+		actualEqualsExpected(
+			t,
+			actual,
+			map[string]any{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]},
+		)
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
 }
 
 func TestTCPSink(t *testing.T) {
+	t.Parallel()
+
 	server := setupTCP(t, 1234)
-	var serverOutC <-chan map[string]interface{}
+	var serverOutC <-chan map[string]any
 	var serverWG sync.WaitGroup
 	serverWG.Add(1)
 	go func() {
@@ -59,15 +75,22 @@ func TestTCPSink(t *testing.T) {
 	fatalIfErr(t, err)
 	t.Cleanup(cleanup)
 
-	logger := zap.New(zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), writer, zap.DebugLevel)).Sugar()
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		writer, zap.DebugLevel,
+	)).Sugar()
 
 	serverWG.Wait()
 
 	logger.Warnw("hello", "from", "warn")
-	var actual map[string]interface{}
+	var actual map[string]any
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]})
+		actualEqualsExpected(
+			t,
+			actual,
+			map[string]any{"msg": "hello", "level": "warn", "from": "warn", "ts": actual["ts"]},
+		)
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
@@ -75,13 +98,17 @@ func TestTCPSink(t *testing.T) {
 	logger.Infow("hello", "from", "info")
 	select {
 	case actual = <-serverOutC:
-		actualEqualsExpected(t, actual, map[string]interface{}{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]})
+		actualEqualsExpected(
+			t,
+			actual,
+			map[string]any{"msg": "hello", "level": "info", "from": "info", "ts": actual["ts"]},
+		)
 	case <-time.After(time.Millisecond):
 		t.Fatal("expected message within 1ms")
 	}
 }
 
-func actualEqualsExpected(tb testing.TB, actual, expected interface{}) {
+func actualEqualsExpected(tb testing.TB, actual, expected any) {
 	tb.Helper()
 	if !reflect.DeepEqual(actual, expected) {
 		tb.Errorf(`Actual doesn't equal expected:
@@ -90,12 +117,12 @@ Expected: %#v`, actual, expected)
 	}
 }
 
-func decToChan(tb testing.TB, dec *json.Decoder) <-chan map[string]interface{} {
+func decToChan(tb testing.TB, dec *json.Decoder) <-chan map[string]any {
 	tb.Helper()
-	serverOutC := make(chan map[string]interface{}, 1)
+	serverOutC := make(chan map[string]any, 1)
 	go func() {
 		for {
-			var v map[string]interface{}
+			var v map[string]any
 			if err := dec.Decode(&v); err != nil {
 				return
 			}

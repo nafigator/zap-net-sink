@@ -5,7 +5,7 @@
 This software follows *"Semantic Versioning"* specifications. The signature of exported package functions is used
 as a public API. Read more on [SemVer.org][semver src].
 
-[License img]: https://img.shields.io/github/license/nafigator/zap-net-sink?color=teal
+[License img]: https://img.shields.io/badge/license-MIT-teal.svg
 [License src]: https://www.tldrlegal.com/license/mit-license
 [Release img]: https://img.shields.io/github/v/tag/nafigator/zap-net-sink?logo=github&color=teal&filter=!*/*
 [Release src]: https://github.com/nafigator/zap-net-sink

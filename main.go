@@ -1,4 +1,5 @@
-package zap_net_sink
+// Package zap_net_sink provides sink functionality for zap logger.
+package zap_net_sink //nolint:staticcheck // Acknowledged. ST1003: should not use underscores in package names.
 
 import (
 	"fmt"
@@ -9,7 +10,7 @@ import (
 )
 
 // Register udp and tcp urls with zap.
-func init() {
+func init() { //nolint:gochecknoinits	// Acknowledged
 	if err := zap.RegisterSink("udp", NewUDPSink); err != nil {
 		panic(err)
 	}
@@ -21,7 +22,7 @@ func init() {
 
 // NewUDPSink creates a zap sink to the given url.
 func NewUDPSink(url *url.URL) (zap.Sink, error) {
-	conn, err := net.Dial("udp", fmt.Sprintf("%s:%s", url.Hostname(), url.Port()))
+	conn, err := net.Dial("udp", fmt.Sprintf("%s:%s", url.Hostname(), url.Port())) //nolint:govet,noctx // Acknowledged
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup a UDP sink - %w", err)
 	}
@@ -31,7 +32,7 @@ func NewUDPSink(url *url.URL) (zap.Sink, error) {
 
 // NewTCPSink creates a zap sink to the given url.
 func NewTCPSink(url *url.URL) (zap.Sink, error) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", url.Hostname(), url.Port()))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", url.Hostname(), url.Port())) //nolint:govet,noctx // Acknowledged
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup a TCP sink - %w", err)
 	}
@@ -47,7 +48,7 @@ func (z *WriteSyncer) Close() error {
 	return z.conn.Close()
 }
 
-func (z *WriteSyncer) Write(p []byte) (n int, err error) {
+func (z *WriteSyncer) Write(p []byte) (int, error) {
 	return z.conn.Write(p)
 }
 
