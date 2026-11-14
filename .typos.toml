@@ -1,0 +1,2 @@
+[files]
+extend-exclude = [".golangci.yml","**/vendor/*",".git",".idea","**/.config/*","typos",".assets"]
